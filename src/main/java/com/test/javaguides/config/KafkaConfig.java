@@ -1,5 +1,6 @@
 package com.test.javaguides.config;
 
+import com.test.javaguides.payload.User;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -46,8 +47,24 @@ public class KafkaConfig {
         return new DefaultKafkaProducerFactory<>(props);
     }
 
+
+    @Bean
+    public ProducerFactory<String, User> userProducerFactory() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, kafkaProperties.getProducer().getKeySerializer());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, kafkaProperties.getProducer().getValueSerializer());
+        return new DefaultKafkaProducerFactory<>(props);
+    }
+
     @Bean
     public KafkaTemplate<String, String> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
+    }
+
+    // KafkaTemplate for User objects
+    @Bean
+    public KafkaTemplate<String, User> userKafkaTemplate() {
+        return new KafkaTemplate<>(userProducerFactory());
     }
 }
